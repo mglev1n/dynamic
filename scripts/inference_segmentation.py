@@ -107,7 +107,7 @@ class SegmentationInferenceEngine:
 
         latexify()
         with open(os.path.join(out_dir, "size.csv"), "w") as g:
-            g.write("Filename,Frame,Size,ComputerSmall\n")
+            g.write("Filename,Frame,Size,Systole,Diastole\n")
             for path in tqdm.tqdm(paths):
                 filename = path.name
                 video = loadvideo(str(path))
@@ -125,10 +125,11 @@ class SegmentationInferenceEngine:
 
                 trim_min, trim_max, trim_range = self._get_trim_min_max_range(size)
                 systole = self._get_systole(size, trim_range)
+                diastole = self._get_diastole(size, trim_range)
 
                 # Write sizes and frames to file
                 for (frame, s) in enumerate(size):
-                    g.write("{},{},{},{}\n".format(filename, frame, s, 1 if frame in systole else 0))
+                    g.write("{},{},{},{},{}\n".format(filename, frame, s, 1 if frame in systole else 0, 1 if frame in diastole else 0))
                     g.flush()
 
                 # Plot sizes
@@ -186,6 +187,9 @@ class SegmentationInferenceEngine:
 
     def _get_systole(self, size, trim_range):
         return set(scipy.signal.find_peaks(-size, distance=20, prominence=(0.50 * trim_range))[0])
+      
+    def _get_diastole(self, size, trim_range):
+        return set(scipy.signal.find_peaks(size, distance=20, prominence=(0.50 * trim_range))[0])
 
     def _plot_size(self, size, systole, filename, out_dir):
         fig = plt.figure(figsize=(size.shape[0] / 50 * 1.5, 3))
