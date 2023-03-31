@@ -128,8 +128,9 @@ class SegmentationInferenceEngine:
                 diastole = self._get_diastole(size, trim_range)
 
                 # Write sizes and frames to file (move to next video if no sizes found)
-                if len(size) == 0:
-                    continue
+                if len(size) == 0 or np.isnan(size).any() or np.isinf(size).any():
+                    continue  # skip to next iteration if size array is empty or contains NaN or infinite values
+    
                 for (frame, s) in enumerate(size):
                     g.write("{},{},{},{},{}\n".format(filename, frame, s, 1 if frame in systole else 0, 1 if frame in diastole else 0))
                     g.flush()
