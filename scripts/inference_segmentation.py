@@ -206,6 +206,7 @@ class SegmentationInferenceEngine:
         plt.close(fig)
 
     def _normalize_size(self, size):
+        size = np.nan_to_num(size)
         size -= size.min()
         size = size / size.max()
         size = 1 - size
