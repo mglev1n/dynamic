@@ -127,10 +127,7 @@ class SegmentationInferenceEngine:
                 systole = self._get_systole(size, trim_range)
                 diastole = self._get_diastole(size, trim_range)
 
-                # Write sizes and frames to file (move to next video if no sizes found)
-                if len(size) == 0 or np.isnan(size).any() or np.isinf(size).any():
-                    continue  # skip to next iteration if size array is empty or contains NaN or infinite values
-    
+                # Write sizes and frames to file
                 for (frame, s) in enumerate(size):
                     g.write("{},{},{},{},{}\n".format(filename, frame, s, 1 if frame in systole else 0, 1 if frame in diastole else 0))
                     g.flush()
@@ -209,10 +206,18 @@ class SegmentationInferenceEngine:
         plt.savefig(os.path.join(out_dir, "size", os.path.splitext(filename)[0] + ".pdf"))
         plt.close(fig)
 
+#     def _normalize_size(self, size):
+#         size -= size.min()
+#         size = size / size.max()
+#         size = 1 - size
+#         return size
+
     def _normalize_size(self, size):
-        size = np.nan_to_num(size)
         size -= size.min()
-        size = size / size.max()
+        max_size = size.max()
+        if max_size == 0:
+            return size  # return original size array if all elements are zero
+        size = size / max_size
         size = 1 - size
         return size
 
