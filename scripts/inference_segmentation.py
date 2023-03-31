@@ -127,10 +127,13 @@ class SegmentationInferenceEngine:
                 systole = self._get_systole(size, trim_range)
                 diastole = self._get_diastole(size, trim_range)
 
-                # Write sizes and frames to file
+                # Write sizes and frames to file (move to next video if no sizes found)
+                if len(size) == 0:
+                    continue
                 for (frame, s) in enumerate(size):
                     g.write("{},{},{},{},{}\n".format(filename, frame, s, 1 if frame in systole else 0, 1 if frame in diastole else 0))
                     g.flush()
+                    
 
                 # Plot sizes
                 self._plot_size(size, systole, filename, out_dir)
