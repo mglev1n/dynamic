@@ -213,6 +213,7 @@ class SegmentationInferenceEngine:
 #         return size
 
     def _normalize_size(self, size):
+        print(size)
         size -= size.min()
         max_size = size.max()
         if max_size == 0:
